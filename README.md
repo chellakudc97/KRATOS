@@ -1,6 +1,6 @@
 # KRATOS
 
-##Breast Cancer Detection Using KRATOS
+## Breast Cancer Detection Using KRATOS
 This repository contains the implementation of the KRATOS algorithm for analyzing and detecting breast cancer from MRI, CT, and Ultrasound images. The project includes preprocessing, model training, evaluation, and visualization techniques.
 
 Overview
