@@ -4,6 +4,7 @@ import os
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, InputLayer
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -31,6 +32,23 @@ def create_model(input_shape, num_classes):
 # Training the model
 def train_model(model, X_train, y_train, X_val, y_val, epochs=10, batch_size=32):
     history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(X_val, y_val))
+    
+    # Data augmentation
+    datagen = ImageDataGenerator(
+        rotation_range=50,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        shear_range=0.1,
+        zoom_range=0.1,
+        horizontal_flip=True,
+        fill_mode='nearest'
+    )
+
+    datagen.fit(X_train)
+
+    history = model.fit(datagen.flow(X_train, y_train, batch_size=batch_size),
+                        epochs=epochs,
+                        validation_data=(X_val, y_val))
     return history
 
 # Evaluation
@@ -102,8 +120,8 @@ def load_images_from_folder(folder):
                 if img_resized.ndim == 2:
                     img_resized = np.expand_dims(img_resized, axis=-1)
                     img_normalized = (img_resized - np.min(img_resized)) / (np.max(img_resized) - np.min(img_resized))
-                    img_gamma = exposure.adjust_gamma(img_normalized, gamma=0.8)
-                    img_contrast = exposure.equalize_adapthist(img_gamma, clip_limit=0.03)
+                    img_gamma = exposure.adjust_gamma(img_normalized, gamma=3)
+                    img_contrast = exposure.equalize_adapthist(img_gamma, clip_limit=0.01)
                 images.append(img_contrast)
             except Exception as e:
                 print(f"Error loading image {img_path}: {e}")
